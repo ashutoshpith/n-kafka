@@ -30,6 +30,8 @@ async function bootstrap() {
     }),
   });
   await app.startAllMicroservices();
+  console.log('Starting Microservices');
+
   await app.listen(8002);
   console.log('Running on 8002');
 }

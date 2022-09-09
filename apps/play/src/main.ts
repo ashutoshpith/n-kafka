@@ -1,6 +1,4 @@
-import { KafkaConsumer } from '@core/core/kafka/consumer';
 import { NestFactory } from '@nestjs/core';
-import { MicroserviceOptions } from '@nestjs/microservices';
 import { PlayModule } from './play.module';
 
 async function bootstrap() {

@@ -20,7 +20,7 @@ import {
   TopicPartitionOffsetAndMetadata,
 } from '@nestjs/microservices/external/kafka.interface';
 import { loadPackage } from '@nestjs/common/utils/load-package.util';
-import * as kfjs from 'kafkajs';
+import { Logger } from '@nestjs/common';
 
 const KAFKA_DEFAULT_BROKER = 'localhost:9092';
 let kafkaPackage: any = {};
@@ -28,6 +28,7 @@ const KAFKA_DEFAULT_CLIENT = 'nestjs-consumer';
 const KAFKA_DEFAULT_GROUP = 'nestjs-group';
 
 export class KafkaProducer extends ClientKafka {
+  private readonly kafkaProducerLogger = new Logger(KafkaProducer.name);
   protected readonly options_kp: KafkaOptions['options'];
   protected readonly brokers_kp: string[] | BrokersFunction;
   protected parser_kp: KafkaParser = null;
@@ -64,10 +65,8 @@ export class KafkaProducer extends ClientKafka {
 
     this.initializeSerializer(options);
     this.initializeDeserializer(options);
-    console.log('connection establish');
-    // new kfjs.Kafka({
+    this.kafkaProducerLogger.log('connection establish');
 
-    // })
     console.log('her ', this.client, options);
   }
 
@@ -75,6 +74,7 @@ export class KafkaProducer extends ClientKafka {
     topic: string,
     numPartitions: number,
   ): Promise<boolean> {
+    this.kafkaProducerLogger.log('createTopics');
     return this.client.admin().createTopics({
       topics: [
         {
@@ -85,11 +85,15 @@ export class KafkaProducer extends ClientKafka {
     });
   }
   public subscribeToResponseOf(pattern: any): void {
+    this.kafkaProducerLogger.log('subscribeToResponseOf');
+
     const request = this.normalizePattern(pattern);
     this.responsePatterns.push(this.getResponsePatternName(request));
   }
 
   public async close(): Promise<void> {
+    this.kafkaProducerLogger.log('close');
+
     this.producer && (await this.producer.disconnect());
     this.consumer && (await this.consumer.disconnect());
     this.producer = null;
@@ -98,6 +102,8 @@ export class KafkaProducer extends ClientKafka {
   }
 
   public async connect(): Promise<Producer> {
+    this.kafkaProducerLogger.log('connect');
+
     if (this.client) {
       return this.producer;
     }
@@ -137,6 +143,8 @@ export class KafkaProducer extends ClientKafka {
   }
 
   public async bindTopics(): Promise<void> {
+    this.kafkaProducerLogger.log('bindTopics');
+
     if (!this.consumer) {
       throw Error('No consumer initialized');
     }
@@ -157,6 +165,8 @@ export class KafkaProducer extends ClientKafka {
   }
 
   public createClient<T = any>(): T {
+    this.kafkaProducerLogger.log('createClient');
+
     const kafkaConfig: KafkaConfig = Object.assign(
       { logCreator: KafkaLogger.bind(null, this.logger) },
       this.options.client,
@@ -167,6 +177,8 @@ export class KafkaProducer extends ClientKafka {
   }
 
   public createResponseCallback(): (payload: EachMessagePayload) => any {
+    this.kafkaProducerLogger.log('createResponseCallback');
+
     return async (payload: EachMessagePayload) => {
       const rawMessage = this.parser.parse<KafkaMessage>(
         Object.assign(payload.message, {
@@ -198,15 +210,19 @@ export class KafkaProducer extends ClientKafka {
   }
 
   public getConsumerAssignments() {
+    this.kafkaProducerLogger.log('getConsumerAssignments');
+
     return this.consumerAssignments;
   }
 
   protected async dispatchEvent(packet: OutgoingEvent): Promise<any> {
+    this.kafkaProducerLogger.log('dispatchEvent');
+
     const pattern = this.normalizePattern(packet.pattern);
     const outgoingEvent = await this.serializer.serialize(packet.data, {
       pattern,
     });
-    outgoingEvent.partition = 2;
+    // outgoingEvent.partition = 2;
     const message = Object.assign(
       {
         topic: pattern,
@@ -214,12 +230,14 @@ export class KafkaProducer extends ClientKafka {
       },
       this.options.send || {},
     );
-    console.log('message ', message, packet);
+    console.log('message ', message, packet, outgoingEvent);
 
     return this.producer.send(message);
   }
 
   protected getReplyTopicPartition(topic: string): string {
+    this.kafkaProducerLogger.log('getReplyTopicPartition');
+
     const minimumPartition = this.consumerAssignments[topic];
     if (isUndefined(minimumPartition)) {
       console.log('Invaild kafka client topic ', topic);
@@ -233,6 +251,8 @@ export class KafkaProducer extends ClientKafka {
     partialPacket: ReadPacket,
     callback: (packet: WritePacket) => any,
   ): () => void {
+    this.kafkaProducerLogger.log('publish');
+
     const packet = this.assignPacketId(partialPacket);
     this.routingMap.set(packet.id, callback);
 
@@ -273,10 +293,14 @@ export class KafkaProducer extends ClientKafka {
   }
 
   protected getResponsePatternName(pattern: string): string {
+    this.kafkaProducerLogger.log('getResponsePatternName');
+
     return `${pattern}.reply`;
   }
 
   protected setConsumerAssignments(data: ConsumerGroupJoinEvent): void {
+    this.kafkaProducerLogger.log('setConsumerAssignments');
+
     const consumerAssignments: { [key: string]: number } = {};
 
     // only need to set the minimum
@@ -294,6 +318,8 @@ export class KafkaProducer extends ClientKafka {
   public commitOffsets(
     topicPartitions: TopicPartitionOffsetAndMetadata[],
   ): Promise<void> {
+    this.kafkaProducerLogger.log('commitOffsets');
+
     if (this.consumer) {
       return this.consumer.commitOffsets(topicPartitions);
     } else {
@@ -303,3 +329,11 @@ export class KafkaProducer extends ClientKafka {
 }
 
 export declare const isUndefined: (obj: any) => obj is undefined;
+
+// connect
+// createClient
+// bindTopics
+// createResponseCallback
+// getConsumerAssignments
+// setConsumerAssignments
+// dispatchEvent

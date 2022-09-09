@@ -22,6 +22,7 @@ let kafkaPackage: any = {};
 export class KafkaConsumer extends ServerKafka {
   constructor(protected readonly options: KafkaOptions['options']) {
     super(options);
+    console.log('options ', options);
 
     kafkaPackage = this.loadPackage('kafkajs', ServerKafka.name, () =>
       require('kafkajs'),
@@ -57,23 +58,15 @@ export class KafkaConsumer extends ServerKafka {
     });
     this.consumer = this.client.consumer(consumerOptions);
     this.producer = this.client.producer(this.options.producer);
-    console.log('1', this.consumer, consumerOptions);
 
     await this.consumer.connect();
-    console.log('12');
-
     await this.producer.connect();
-    console.log('13');
-
     await this.bindEvents(this.consumer);
-    console.log('14');
 
     callback();
   }
 
   public createClient<T = any>(): T {
-    console.log('check', this.brokers, this.clientId);
-
     return new kafkaPackage.Kafka(
       Object.assign(
         { logCreator: KafkaLogger.bind(null, this.logger) },

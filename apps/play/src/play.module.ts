@@ -24,6 +24,11 @@ import { PlayService } from './play.service';
         groupId,
         // allowAutoTopicCreation: true,
       },
+      producer: {
+        createPartitioner: () => () => {
+          return 4;
+        },
+      },
       client: {
         brokers,
         clientId,

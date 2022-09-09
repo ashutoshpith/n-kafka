@@ -8,6 +8,7 @@ export class PlayResolver {
   @Query(() => Boolean)
   hit() {
     this.kclient.emit('topic_play', { a: '1bcccd1csd' }).subscribe();
+
     return true;
   }
 

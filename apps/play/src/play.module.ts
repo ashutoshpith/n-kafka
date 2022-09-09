@@ -9,6 +9,7 @@ import { KafkaProducerModule } from '@core/core/kafka/kafka-producer.module';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
+import { CompressionTypes } from '@nestjs/microservices/external/kafka.interface';
 import { PlayController } from './play.controller';
 import { PlayResolver } from './play.resolver';
 import { PlayService } from './play.service';
@@ -21,8 +22,12 @@ import { PlayService } from './play.service';
     }),
     KafkaProducerModule.forRoot({
       consumer: {
-        groupId,
+        groupId: 'play-group',
         // allowAutoTopicCreation: true,
+      },
+      send: {
+        acks: 0,
+        compression: CompressionTypes.GZIP,
       },
       producer: {
         createPartitioner: () => () => {

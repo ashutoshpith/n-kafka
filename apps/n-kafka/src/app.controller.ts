@@ -11,7 +11,7 @@ import { AppService } from './app.service';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @EventPattern('topic_play')
+  @EventPattern('assignment.assignment-qa-v1.assignmentlogs')
   kafka(@Payload() msg: any, @Ctx() context: KafkaContext) {
     console.log('are oy main', msg);
     console.log('context ', context.getPartition(), context.getTopic());

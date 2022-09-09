@@ -13,7 +13,7 @@ export class GroundController {
 
   @EventPattern('topic_play')
   kafka(@Payload() msg: any, @Ctx() context: KafkaContext) {
-    console.log('are oy', msg);
+    console.log('are oy ground', msg);
     console.log('context ', context.getPartition(), context.getTopic());
   }
 

@@ -29,42 +29,14 @@ const KAFKA_DEFAULT_GROUP = 'nestjs-group';
 
 export class KafkaProducer extends ClientKafka {
   private readonly kafkaProducerLogger = new Logger(KafkaProducer.name);
-  protected readonly options_kp: KafkaOptions['options'];
-  protected readonly brokers_kp: string[] | BrokersFunction;
-  protected parser_kp: KafkaParser = null;
-  protected clientId_kp: string;
-  protected groupId_kp: string;
-  protected producerOnlyMode_kp: boolean;
 
   constructor(options: KafkaOptions['options']) {
     super(options);
-    this.options_kp = this.options;
-
-    const clientOptions =
-      this.getOptionsProp(this.options_kp, 'client') || ({} as KafkaConfig);
-    const consumerOptions =
-      this.getOptionsProp(this.options_kp, 'consumer') ||
-      ({} as ConsumerConfig);
-    const postfixId =
-      this.getOptionsProp(this.options_kp, 'postfixId') ?? '-client';
-
-    this.producerOnlyMode_kp =
-      this.getOptionsProp(this.options_kp, 'producerOnlyMode') || false;
-
-    this.brokers_kp = clientOptions.brokers || [KAFKA_DEFAULT_BROKER];
-
-    this.clientId_kp =
-      (clientOptions.clientId || KAFKA_DEFAULT_CLIENT) + postfixId;
-    this.groupId_kp =
-      (consumerOptions.groupId || KAFKA_DEFAULT_GROUP) + postfixId;
 
     kafkaPackage = loadPackage('kafkajs', ClientKafka.name, () =>
       require('kafkajs'),
     );
-    this.parser_kp = new KafkaParser((options && options.parser) || undefined);
 
-    this.initializeSerializer(options);
-    this.initializeDeserializer(options);
     this.kafkaProducerLogger.log('connection establish');
 
     console.log('her ', this.client, options);
@@ -230,7 +202,6 @@ export class KafkaProducer extends ClientKafka {
       },
       this.options.send || {},
     );
-    console.log('message ', message, packet, outgoingEvent);
 
     return this.producer.send(message);
   }

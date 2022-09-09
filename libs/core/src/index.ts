@@ -7,3 +7,4 @@ export const kafka_key = 'ODMX63QMMBWZB3FF';
 export const groupId = 'play-group';
 export const brokers = ['pkc-l7pr2.ap-south-1.aws.confluent.cloud:9092'];
 export const clientId = 'play-client';
+// ASSIGNEMNT_MONGO_DB=mongodb+srv://dev:wJWFFhDKqaSFbWOd@dev-cluster.d31os.mongodb.net/assignment-qa-v1?retryWrites=true&w=majority&ssl=true

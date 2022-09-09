@@ -15,7 +15,7 @@ async function bootstrap() {
   app.connectMicroservice<MicroserviceOptions>({
     strategy: new KafkaConsumer({
       consumer: {
-        groupId,
+        groupId: 'play-group',
       },
       client: {
         brokers,

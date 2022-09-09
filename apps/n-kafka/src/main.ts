@@ -25,7 +25,7 @@ async function bootstrap() {
           password: kafka_secret_key,
           mechanism: 'PLAIN',
         } as any,
-        // clientId,
+        clientId,
       },
     }),
   });

@@ -6,8 +6,8 @@ export class PlayResolver {
   constructor(private readonly kclient: KafkaProducer) {}
 
   @Query(() => Boolean)
-  hit() {
-    this.kclient.emit('topic_play', { a: '1bcccd1csd' }).subscribe();
+  hit(@Args('data') data: string) {
+    this.kclient.emit('topic_play', { a: data }).subscribe();
 
     return true;
   }

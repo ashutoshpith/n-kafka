@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import {
   KafkaContext,
   KafkaHeaders,
@@ -20,6 +21,8 @@ import { Observable, ReplaySubject } from 'rxjs';
 
 let kafkaPackage: any = {};
 export class KafkaConsumer extends ServerKafka {
+  private readonly kafkaConsumerlogger = new Logger(KafkaConsumer.name);
+
   constructor(protected readonly options: KafkaOptions['options']) {
     super(options);
     console.log('options ', options);
@@ -36,6 +39,7 @@ export class KafkaConsumer extends ServerKafka {
   public async listen(
     callback: (err?: unknown, ...optionalParams: unknown[]) => void,
   ): Promise<void> {
+    this.kafkaConsumerlogger.log('listen');
     try {
       this.client = this.createClient();
       await this.start(callback);
@@ -45,6 +49,8 @@ export class KafkaConsumer extends ServerKafka {
   }
 
   public async close(): Promise<void> {
+    this.kafkaConsumerlogger.log('close');
+
     this.consumer && (await this.consumer.disconnect());
     this.producer && (await this.producer.disconnect());
     this.consumer = null;
@@ -53,6 +59,8 @@ export class KafkaConsumer extends ServerKafka {
   }
 
   public async start(callback: () => void): Promise<void> {
+    this.kafkaConsumerlogger.log('start');
+
     const consumerOptions = Object.assign(this.options.consumer || {}, {
       groupId: this.groupId,
     });
@@ -67,6 +75,8 @@ export class KafkaConsumer extends ServerKafka {
   }
 
   public createClient<T = any>(): T {
+    this.kafkaConsumerlogger.log('createClient');
+
     return new kafkaPackage.Kafka(
       Object.assign(
         { logCreator: KafkaLogger.bind(null, this.logger) },
@@ -77,6 +87,8 @@ export class KafkaConsumer extends ServerKafka {
   }
 
   public async bindEvents(consumer: Consumer) {
+    this.kafkaConsumerlogger.log('bindEvents');
+
     const registeredPatterns = [...this.messageHandlers.keys()];
     const consumerSubscribeOptions = this.options.subscribe || {};
     const subscribeToPattern = async (pattern: string) =>
@@ -93,6 +105,8 @@ export class KafkaConsumer extends ServerKafka {
   }
 
   public getMessageHandler() {
+    this.kafkaConsumerlogger.log('getMessageHandler');
+
     return async (payload: EachMessagePayload) => this.handleMessage(payload);
   }
 
@@ -101,11 +115,15 @@ export class KafkaConsumer extends ServerKafka {
     replyPartition: string,
     correlationId: string,
   ): (data: any) => Promise<RecordMetadata[]> {
+    this.kafkaConsumerlogger.log('getPublisher');
+
     return (data: any) =>
       this.sendMessage(data, replyTopic, replyPartition, correlationId);
   }
 
   public async handleMessage(payload: EachMessagePayload) {
+    this.kafkaConsumerlogger.log('handleMessage');
+
     const channel = payload.topic;
     const rawMessage = this.parser.parse<KafkaMessage>(
       Object.assign(payload.message, {
@@ -188,6 +206,8 @@ export class KafkaConsumer extends ServerKafka {
     replyPartition: string,
     correlationId: string,
   ): Promise<RecordMetadata[]> {
+    this.kafkaConsumerlogger.log('sendMessage');
+
     const outgoingMessage = await this.serializer.serialize(message.response);
     this.assignReplyPartition(replyPartition, outgoingMessage);
     this.assignCorrelationIdHeader(correlationId, outgoingMessage);
@@ -208,6 +228,8 @@ export class KafkaConsumer extends ServerKafka {
     outgoingResponse: OutgoingResponse,
     outgoingMessage: Message,
   ) {
+    this.kafkaConsumerlogger.log('assignIsDisposedHeader');
+
     if (!outgoingResponse.isDisposed) {
       return;
     }
@@ -218,6 +240,8 @@ export class KafkaConsumer extends ServerKafka {
     outgoingResponse: OutgoingResponse,
     outgoingMessage: Message,
   ) {
+    this.kafkaConsumerlogger.log('assignErrorHeader');
+
     if (!outgoingResponse.err) {
       return;
     }
@@ -233,6 +257,8 @@ export class KafkaConsumer extends ServerKafka {
     correlationId: string,
     outgoingMessage: Message,
   ) {
+    this.kafkaConsumerlogger.log('assignCorrelationIdHeader');
+
     outgoingMessage.headers[KafkaHeaders.CORRELATION_ID] =
       Buffer.from(correlationId);
   }
@@ -241,6 +267,8 @@ export class KafkaConsumer extends ServerKafka {
     replyPartition: string,
     outgoingMessage: Message,
   ) {
+    this.kafkaConsumerlogger.log('assignReplyPartition');
+
     if (isNil(replyPartition)) {
       return;
     }

@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "apps/n-kafka/src",
+  "monorepo": true,
+  "root": "apps/n-kafka",
+  "compilerOptions": {
+    "webpack": true,
+    "tsConfigPath": "apps/n-kafka/tsconfig.app.json"
+  },
+  "projects": {
+    "n-kafka": {
+      "type": "application",
+      "root": "apps/n-kafka",
+      "entryFile": "main",
+      "sourceRoot": "apps/n-kafka/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/n-kafka/tsconfig.app.json"
+      }
+    },
+    "play": {
+      "type": "application",
+      "root": "apps/play",
+      "entryFile": "main",
+      "sourceRoot": "apps/play/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/play/tsconfig.app.json"
+      }
+    },
+    "ground": {
+      "type": "application",
+      "root": "apps/ground",
+      "entryFile": "main",
+      "sourceRoot": "apps/ground/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/ground/tsconfig.app.json"
+      }
+    },
+    "core": {
+      "type": "library",
+      "root": "libs/core",
+      "entryFile": "index",
+      "sourceRoot": "libs/core/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/core/tsconfig.lib.json"
+      }
+    }
+  }
+}

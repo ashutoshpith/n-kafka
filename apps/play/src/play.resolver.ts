@@ -1,5 +1,6 @@
 import { KafkaProducer } from '@core/core/kafka/producer';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Message } from '@nestjs/microservices/external/kafka.interface';
 
 @Resolver()
 export class PlayResolver {
@@ -7,7 +8,16 @@ export class PlayResolver {
 
   @Query(() => Boolean)
   hit(@Args('data') data: string) {
-    this.kclient.emit('topic_play', { a: data }).subscribe();
+    this.kclient
+      .emit('topic_play', {
+        key: 'me',
+        value: data,
+        partition: 2,
+        headers: {
+          ashvau: 'ashutoshpith',
+        },
+      } as Message)
+      .subscribe();
 
     return true;
   }

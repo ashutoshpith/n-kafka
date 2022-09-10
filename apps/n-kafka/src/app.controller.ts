@@ -11,10 +11,16 @@ import { AppService } from './app.service';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @EventPattern('assignment.assignment-qa-v1.assignmentlogs')
+  // @EventPattern('assignment.assignment-qa-v1.assignmentlogs')
+  @EventPattern('topic_play')
   kafka(@Payload() msg: any, @Ctx() context: KafkaContext) {
     console.log('are oy main', msg);
-    console.log('context ', context.getPartition(), context.getTopic());
+    console.log(
+      'context ',
+      context,
+      context.getPartition(),
+      context.getTopic(),
+    );
   }
 
   @Get()

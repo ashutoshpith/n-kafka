@@ -189,11 +189,14 @@ export class KafkaProducer extends ClientKafka {
 
   protected async dispatchEvent(packet: OutgoingEvent): Promise<any> {
     this.kafkaProducerLogger.log('dispatchEvent');
+    console.log('packet ', packet);
 
     const pattern = this.normalizePattern(packet.pattern);
     const outgoingEvent = await this.serializer.serialize(packet.data, {
       pattern,
     });
+    console.log('outgoingEvent', outgoingEvent);
+
     // outgoingEvent.partition = 2;
     const message = Object.assign(
       {

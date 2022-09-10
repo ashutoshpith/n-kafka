@@ -76,6 +76,7 @@ export class KafkaConsumer extends ServerKafka {
 
   public createClient<T = any>(): T {
     this.kafkaConsumerlogger.log('createClient');
+    console.log('client id', this.clientId);
 
     return new kafkaPackage.Kafka(
       Object.assign(
